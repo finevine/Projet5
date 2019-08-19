@@ -1,4 +1,4 @@
-<img src="img/logo.png" alt="Foodstitute" title="Foodstitute" align="right" />
+<img src="img/logo.png" alt="Foodstitute" title="Foodstitute" align="right" style="width: 100px;" />
 
 Foodstitute
 =================
@@ -33,7 +33,7 @@ python main.py
 
 ## Features
 
-Using the terminal select "Substitution" OR "My food"
+Using the terminal select "Find a substitute" OR "My food"
 
 ## License
 
