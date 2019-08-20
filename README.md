@@ -5,18 +5,15 @@ Foodstitute
 
 Foodstitute is a class exercise for becoming a python developper.
 It aims at finding food substitute using the terminal and all of that
-amongst 10 food categories which are :
+amongst a few food categories which are :
 
-- category 1
-- category 2
-- category 3
-- category 4
-- category 5
-- category 6
-- category 7
-- category 8
-- category 9
-- category 10
+- breakfast cereals
+- candies
+- dark chocolates
+- ice creams and sorbets
+- nuts
+
+The product's architecture can be found on [Open Food Facts wiki](https://en.wiki.openfoodfacts.org/API/Read/Product).
 
 ## Table of content
 
