@@ -1,4 +1,4 @@
-<img src="img/logo.png" alt="Foodstitute" title="Foodstitute" align="right" style="width: 100px !important;" />
+<img src="img/logo.png" alt="Foodstitute" title="Foodstitute" align="right" width="100px" />
 
 Foodstitute
 =================
