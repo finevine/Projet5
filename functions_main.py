@@ -12,7 +12,10 @@ def start():
     Get the first choice of a user
     '''
     # Explain purpose of tool to user
-    print('This tools allows you to find product of substitution \namongst data provided by openfoodfacts.com. \nFor now, only 5 categories of products are available. \nSimply make your choice bellow, or input \'Q\' to quit.\n-----')
+    print('This tools allows you to find product of substitution \n\
+          amongst data provided by openfoodfacts.com. \n\
+          For now, only 5 categories of products are available. \n\
+          Simply make your choice bellow, or input \'Q\' to quit.\n-----')
 
     # Detect errors in choice input
     choice = '0'
@@ -32,13 +35,18 @@ def start():
 
 def choose_category(categories):
     '''
-
+    Choose a category of product user want to substitude
     '''
     prompt = 'Choose a category of products:\n'
+
+    # List all categories
     for category in categories:
-        prompt = prompt + '(' + str(categories.index(category)) + ') ' + category.replace('-', ' ') + '\n'
+        prompt = prompt + '(' + str(categories.index(category)) + ') '\
+                 + category.replace('-', ' ') + '\n'
     choice = input(prompt + '\nChoice: ')
     print('-----')
+
+    # Return choosen category
     return int(choice)
 
 
@@ -46,7 +54,5 @@ def manage_personnal_food():
     pass
 
 
-def init_prod_db():
-    '''
-    Initialize the product database
-    '''
+def connect_client():
+    pass

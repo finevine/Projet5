@@ -17,9 +17,20 @@ The product's architecture can be found on [Open Food Facts wiki](https://en.wik
 
 ## Table of content
 
+- [Setup](#setup)
 - [Run Foodstitute](#running-it)
 - [License](#license)
 - [Links](#links)
+
+## Setup
+
+[`MySQL`](https://dev.mysql.com/doc/refman/8.0/en/installing.html) must be installed and you must know the login and password to connect to this client.
+`CREATE USER 'id'@'localhost' IDENTIFIED BY 'password';`
+
+Then run setup.py
+```bash
+python setup.py
+```
 
 ## Running it
 
