@@ -3,7 +3,7 @@ Functions used in Foodstitute
 '''
 import mysql.connector
 from getpass import getpass
-
+from mysql.connector import errorcode
 
 if __name__ == "__main__":
     print('Functions used in Foodstitute')
@@ -27,19 +27,33 @@ def connect_client():
 
     ''' Difficult to connect as root and then as user
     if existing_user == 'N':
-        statement = "CREATE USER '" + login + "'@'localhost' IDENTIFIED BY '" + password + "';"
-    '''
-
-    # Connect to DB
-    user_db = mysql.connector.connect(
-        host="localhost",
-        user=user_login,
-        password=user_password,
-        database="foodstitute",
-        auth_plugin='mysql_native_password'
-        )
-
-    return user_db
+        statement = "CREATE USER '" + login + "'@'localhost' IDENTIFIED BY '" + password + "';"'''
+    try:
+        user_db = mysql.connector.connect(
+            host="localhost",
+            user=user_login,
+            password=user_password,
+            database="foodstitute",
+            auth_plugin='mysql_native_password'
+            )
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        # Connect to DB
+        return user_db
 
 
 def init_prod_db(categories):
+    pass
+
+
+def close_connection(connection):
+    '''
+    close close_connection
+    '''
+    connection.close()

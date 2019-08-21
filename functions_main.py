@@ -22,14 +22,21 @@ def start():
     Get the first choice of a user
     '''
     # Explain purpose of tool to user
-    print('This tools allows you to find product of substitution \namongst data provided by openfoodfacts.com. \nCAUTION : this program is in beta and products are not accurate. \nMake your choice bellow, or \'Q\' to quit :\n-----')
+    print('***********************************************************',
+          '*                      FOODSTITUTE                        *',
+          '*          CAUTION : this program is in beta              *',
+          '*            and products are not accurate.               *',
+          '***********************************************************',
+          'Make your choice bellow, or \'Q\' to quit :\n-----',
+          sep='\n')
 
     # Detect errors in choice input
     choice = input('(1) Find a substitute\n(2) Manage my food\n\nChoice: ').upper()
 
     while choice not in ['1', '2', 'B', 'Q']:
-        print('Choice must be 1 OR 2.')
-        print('-----')
+        print('Choice must be 1 OR 2.',
+              '-----',
+              sep='\n')
         choice = input('(1) Find a substitute\n(2) Manage my food\n\nChoice: ').upper()
     print('-----')
 
