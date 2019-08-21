@@ -10,10 +10,6 @@ if __name__ == "__main__":
 
 
 def connect_client():
-    pass
-
-
-def init_prod_db():
     '''
     Initialize the product database
     '''
@@ -44,3 +40,6 @@ def init_prod_db():
         )
 
     return user_db
+
+
+def init_prod_db(categories):

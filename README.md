@@ -13,6 +13,8 @@ amongst a few food categories which are :
 - ice creams and sorbets
 - nuts
 
+Thoses categories are stored in `./src/categories.txt`
+
 The product's architecture can be found on [Open Food Facts wiki](https://en.wiki.openfoodfacts.org/API/Read/Product).
 
 ## Table of content

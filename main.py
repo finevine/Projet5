@@ -3,26 +3,22 @@ Main file for running Foodstitute
 '''
 import requests
 from model import *
-from functions_main import start, choose_category, manage_personnal_food
+from functions_main import start, run, exit_program, read_categories
 
 
 def main():
     '''
     Main loop for the programme
     '''
-    categories = ['breakfast-cereals',
-                  'candies',
-                  'dark-chocolates',
-                  'ice-creams-and-sorbets',
-                  'nuts']
-
     # First menu
-    first_choice = start()
+    choice = start()
 
-    if first_choice == 1:
-        second_choice = choose_category(categories)
-    else:
-        second_choice = manage_personnal_food()
+    while choice != 'Q':
+        # Run 1 or 2
+        choice = run(choice)
+
+    exit_program()
+
 
     search_param = {"search_terms": categories[second_choice],
                     "search_tag": "categories",

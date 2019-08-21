@@ -1,58 +1,119 @@
 '''
 Functions used in Foodstitute
 '''
-from exit_program import exit_program
-
+from sys import exit
 if __name__ == "__main__":
     print('Functions used in Foodstitute')
 
+
+def read_categories(path):
+    data = []
+    with open(path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                data.append(line)
+    return data
+
+CATEGORIES = read_categories('./src/categories.txt')
 
 def start():
     '''
     Get the first choice of a user
     '''
     # Explain purpose of tool to user
-    print('This tools allows you to find product of substitution \n\
-          amongst data provided by openfoodfacts.com. \n\
-          For now, only 5 categories of products are available. \n\
-          Simply make your choice bellow, or input \'Q\' to quit.\n-----')
+    print('This tools allows you to find product of substitution \namongst data provided by openfoodfacts.com. \nCAUTION : this program is in beta and products are not accurate. \nMake your choice bellow, or \'Q\' to quit :\n-----')
 
     # Detect errors in choice input
-    choice = '0'
-    try:
-        while choice not in ['1', '2']:
-            choice = input('(1) Find a substitute\n(2) Manage my food\n\nChoice: ')
-            if choice == 'Q':
-                exit_program()
-            elif choice not in ['1', '2']:
-                print('Choice must be 1 OR 2.')
-            print('-----')
-    except ValueError:
+    choice = input('(1) Find a substitute\n(2) Manage my food\n\nChoice: ').upper()
+
+    while choice not in ['1', '2', 'B', 'Q']:
         print('Choice must be 1 OR 2.')
+        print('-----')
+        choice = input('(1) Find a substitute\n(2) Manage my food\n\nChoice: ').upper()
+    print('-----')
+
+    return choice
+
+
+def run(choice):
+    '''
+    Main run funtion
+    '''
+    if choice == '1':
+        res = substitute(CATEGORIES)
+    elif choice == '2':
+        res = manage_personnal_food()
+    elif choice == 'Q':
+        exit_program()
     else:
-        return int(choice)
+        res = start()
+
+    return res
 
 
-def choose_category(categories):
+def substitute(categories):
+    '''
+    Substitute and eventually save substituted product
+    '''
+    # Find a category of product
+    category = find_category(categories)
+    # Find a product to substitute
+    product = find_product(category)
+    # Save (or not) a product
+    save(product)
+    # Back to first menu
+    return start()
+
+
+def find_category(categories):
     '''
     Choose a category of product user want to substitude
     '''
     prompt = 'Choose a category of products:\n'
+    possible_choices = ['Q', 'B']
 
     # List all categories
     for category in categories:
         prompt = prompt + '(' + str(categories.index(category)) + ') '\
                  + category.replace('-', ' ') + '\n'
-    choice = input(prompt + '\nChoice: ')
+        possible_choices.append(str(categories.index(category)))
+    choice = input(prompt + '\nChoice: ').upper()
+
+    while choice not in possible_choices:
+        print('Choice must be a (#) category, (B)ack or (Q)uit.')
+        print('-----')
+        choice = input(prompt + '\nChoice: ').upper()
     print('-----')
 
     # Return choosen category
-    return int(choice)
+    return choice
 
+def find_product(category):
+    '''
+    Find a product in a category
+    '''
+    return True
+
+def save(product):
+    '''
+    Save a given product to personnal database
+    '''
+    pass
 
 def manage_personnal_food():
-    pass
+    '''
+    Manage personnal food in the database
+    '''
+    return 'B'
 
 
 def connect_client():
     pass
+
+def exit_program():
+    '''
+    Exit the program
+    '''
+    print('You have exited the tool. Thanks!\n')
+    exit()
