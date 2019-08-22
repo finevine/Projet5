@@ -9,6 +9,9 @@ __pycache__/
 # Condas
 *.ipynb
 
+# VS Code
+.vscode
+
 # Distribution / packaging
 .Python
 build/
