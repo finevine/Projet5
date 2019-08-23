@@ -18,17 +18,10 @@ class Product:
         self.nutrition_grade = nutrition_grade
 
 
-class Substitute(Product):
-    ''' A class for a saved substitute '''
-    def __init__(self, code, product_name, categories, nutrition_grade, code_substitute):
-        super().__init__(code, product_name, categories, nutrition_grade)
-        # code substitute is the code of the product that it substitute
-        self.code_substitute = code_substitute
-
-
 class Favourite(Product):
     ''' A class for saved products '''
-    def __init__(self, code, product_name, categories, nutrition_grade):
-        super().__init__(code, product_name, categories, nutrition_grade, code_favourite)
+    def __init__(self, code_unhealthy, code_healthy):
+        super().__init__(code, code_unhealthy, code_healthy)
         # code substitute is the code of the product that it substitute
-        self.code_favourite = code_favourite
+        self.code_unhealthy = code_unhealthy
+        self.code_healthy = code_healthy
