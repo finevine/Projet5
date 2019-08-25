@@ -2,31 +2,11 @@
 Controller of Foodstitute
 '''
 import mysql.connector
+import requests
 from getpass import getpass
 from mysql.connector import errorcode
-from settings import API_URL, SEARCH_HEADER, SEARCH_PARAM, DATABASE, CATEGORIES
-
-
-if __name__ == "__main__":
-    print('Controller used in Foodstitute')
-
-
-def init_db():
-    ''' initialize database '''
-    pass
-
-
-def compare_products(code_product):
-    ''' compare 2 products of the database'''
-    # trier par catégories dans les 10 premiers
-    pass
-    # return product
-
-
-def save_favourite(code_product):
-    ''' save a product substituted as favourite '''
-    # compare_product(code_product)
-    pass
+from model import Category, Product, Favourite
+from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES
 
 
 def connect_client():
@@ -37,7 +17,6 @@ def connect_client():
         ).upper()
 
     if existing_user == 'N':
-        # print('Let\'s create one!')
         print(
             'Please contact your Mysql admin to get \
             an access to `foodstitute` Database'
@@ -48,9 +27,6 @@ def connect_client():
     user_login = input('Database login? ')
     user_password = getpass('Database password? ')
 
-    ''' Difficult to connect as root and then as user
-    if existing_user == 'N':
-        statement = "CREATE USER '" + login + "'@'localhost' IDENTIFIED BY '" + password + "';"'''
     try:
         user_db = mysql.connector.connect(
             host="localhost",
@@ -71,6 +47,59 @@ def connect_client():
         return user_db
 
 
+def search_param(category, page):
+    ''' change search param depending on category and page '''
+    search_param = {"search_terms": category,
+                    "search_tag": "categories",
+                    "sort_by": "unique_scans_n",
+                    "page_size": 1000,
+                    "json": 1,
+                    "page": page}
+    return search_param
+
+def get_api_products(category):
+    ''' This function get the products of a category '''
+    # list of product to output
+    products = []
+    # initialize to page 1 of search result
+    page = 1
+    req = requests.get(API_URL, params=search_param(category, page), headers=SEARCH_HEADER)
+    # output of request as a json file
+    req_output = req.json()
+    # list of product of the output
+    products_output = req_output['products']
+    # store useful values
+    for product in products_output:
+        products.append(
+            Product(
+                product['code'],
+                product['product_name'],
+                product['categories'],
+                product['nutrition_grades_tags'][0]
+                )
+            )
+
+    # then increment page to search next page of results
+    while products_res != []:
+        page += 1
+        req = requests.get(API_URL, params=search_param(category, page), headers=SEARCH_HEADER)
+        req_output = req.json()
+        products_output = req_output['products']
+
+        for product in products_output:
+            products.append(
+                Product(
+                    product['code'],
+                    product['product_name'],
+                    product['categories'],
+                    product['nutrition_grades_tags'][0]
+                    )
+                )
+    # first product name : print(results["products"][0]["product_name_fr"])
+    
+    print([product.name for product in products])
+
+
 def create_table():
     ''' create a table in the db '''
     pass
@@ -83,3 +112,22 @@ def init_prod_db(categories):
 def close_connection(connection):
     ''' close close_connection '''
     connection.close()
+
+
+def compare_products(code_product):
+    ''' compare 2 products of the database'''
+    # trier par catégories dans les 10 premiers
+    pass
+    # return product
+
+
+def save_favourite(code_product):
+    ''' save a product substituted as favourite '''
+    # compare_product(code_product)
+    pass
+
+
+
+if __name__ == "__main__":
+    print('Controller used in Foodstitute')
+    get_api_products('candies')

@@ -3,7 +3,7 @@ The model of the Physical Data model
 '''
 
 class Category:
-    ''' class for one of the categories to analyse '''
+    ''' Class for one of the categories to analyse '''
     def __init__(self, cat_id, cat_name):
         self.id = cat_id
         self.name = cat_name
@@ -13,7 +13,7 @@ class Product:
     ''' A product from OpenFood Fact with only interesting attributes'''
     def __init__(self, code, product_name, categories, nutrition_grade):
         self.code = code
-        self.product_name = product_name
+        self.name = product_name
         self.categories = categories
         self.nutrition_grade = nutrition_grade
 

@@ -3,7 +3,7 @@ Main file for running Foodstitute
 '''
 import requests
 from model import *
-from functions_main import start, run, exit_program, read_categories
+from functions_main import start, run, exit_program
 
 
 def main():
@@ -17,10 +17,10 @@ def main():
         # Run 1 or 2
         choice = run(choice)
 
-    exit_program()
+    #exit_program()
 
 
-    search_param = {"search_terms": categories[second_choice],
+    search_param = {"search_terms": "candies",
                     "search_tag": "categories",
                     "sort_by": "unique_scans_n",
                     "page_size": 20,

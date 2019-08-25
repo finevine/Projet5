@@ -12,21 +12,11 @@ def print_title(title):
         f"*{' ': ^62}*",
         sep='\n'
         )
-    # check title length
-    if len(title) <= 60:
-        print(
-            f"*{title: ^62}*",
-            sep='\n'
-        )
-    else:
-        # split title in pieces apart
-        pieces_title = []
-        while title:
-            pieces_title.append(title[:59])
-            title = title[59:]
-        # print the pieces
-        for title_piece in pieces_title:
-            print(f"*{title_piece: ^62}*", sep='\n')
+    # split text in lines of 60 char
+    title_pieces = split_text(title, 50)
+    # print those lines centered
+    for title_piece in title_pieces:
+        print(f"*{title_piece: ^62}*", sep='\n')
     # print footer of title with '*' char
     print(
         f"*{' ': ^62}*",
@@ -34,6 +24,20 @@ def print_title(title):
         sep='\n')
 
 
+def split_text(text, numb):
+    ''' function to split a text in *numb* char '''
+    res = []
+    line = ''
+
+    for word in text.split():
+        # check if line + word <= theorical length of line -1 for space
+        if len(line) + len(word) <= numb - 1:
+            line = line + ' ' + word
+        else:
+            res.append(line)
+            line = word
+    res.append(line)
+    return res
+
 if __name__ == "__main__":
-    print_title("JE m'appelle Vincent et je suis super content.")
     print('Viewer of Foodstitute')
