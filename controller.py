@@ -58,7 +58,7 @@ def search_param(category, page):
     return search_param
 
 def get_api_products(category):
-    ''' This function get the products of a category '''
+    ''' This function get the products of a category and return them as a list '''
     # list of product to output
     products = []
     # initialize to page 1 of search result
@@ -68,36 +68,21 @@ def get_api_products(category):
     req_output = req.json()
     # list of product of the output
     products_output = req_output['products']
-    # store useful values
+    # store product classes
     for product in products_output:
-        products.append(
-            Product(
-                product['code'],
-                product['product_name'],
-                product['categories'],
-                product['nutrition_grades_tags'][0]
-                )
-            )
+        products.append(Product(product))
 
     # then increment page to search next page of results
-    while products_res != []:
+    while products_output != []:
         page += 1
         req = requests.get(API_URL, params=search_param(category, page), headers=SEARCH_HEADER)
         req_output = req.json()
         products_output = req_output['products']
 
         for product in products_output:
-            products.append(
-                Product(
-                    product['code'],
-                    product['product_name'],
-                    product['categories'],
-                    product['nutrition_grades_tags'][0]
-                    )
-                )
-    # first product name : print(results["products"][0]["product_name_fr"])
+            products.append(Product(product))
     
-    print([product.name for product in products])
+    return products
 
 
 def create_table():
@@ -130,4 +115,5 @@ def save_favourite(code_product):
 
 if __name__ == "__main__":
     print('Controller used in Foodstitute')
+    # test_api('candies')
     get_api_products('candies')

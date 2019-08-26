@@ -11,12 +11,12 @@ class Category:
 
 class Product:
     ''' A product from OpenFood Fact with only interesting attributes'''
-    def __init__(self, code, product_name, categories, nutrition_grade):
-        self.code = code
-        self.name = product_name
-        self.categories = categories
-        self.nutrition_grade = nutrition_grade
-
+    def __init__(self, product):
+        self.code = product.get('code', 'not-applicable')
+        self.name = product.get('product_name', 'not-applicable')
+        self.categories = product.get('categories', 'not-applicable')
+        self.nutrition_grade = product.get('nutrition_grade_fr', 'not-applicable')
+    
 
 class Favourite(Product):
     ''' A class for saved products '''
