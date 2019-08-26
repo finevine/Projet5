@@ -57,6 +57,7 @@ def search_param(category, page):
                     "page": page}
     return search_param
 
+
 def get_api_products(category):
     ''' This function get the products of a category and return them as a list '''
     # list of product to output

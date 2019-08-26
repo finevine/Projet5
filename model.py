@@ -21,7 +21,7 @@ class Product:
 class Favourite(Product):
     ''' A class for saved products '''
     def __init__(self, code_unhealthy, code_healthy):
-        super().__init__(code, code_unhealthy, code_healthy)
+        super().__init__(code_unhealthy, code_healthy)
         # code substitute is the code of the product that it substitute
         self.code_unhealthy = code_unhealthy
         self.code_healthy = code_healthy
