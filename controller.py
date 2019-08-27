@@ -4,58 +4,10 @@ Controller of Foodstitute
 import mysql.connector
 import requests
 from getpass import getpass
-from mysql.connector import errorcode
+# from mysql.connector import errorcode
 from model import Category, Product, Favourite
 from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES
 
-
-def connect_client():
-    ''' Initialize the product database '''
-    # Check for existing user
-    existing_user = input(
-        'Do you have access to the MySql Client (Y)es/(N)o: '
-        ).upper()
-
-    if existing_user == 'N':
-        print(
-            'Please contact your Mysql admin to get \
-            an access to `foodstitute` Database'
-            )
-        return False
-
-    # Grant user for login and password
-    user_login = input('Database login? ')
-    user_password = getpass('Database password? ')
-
-    try:
-        user_db = mysql.connector.connect(
-            host="localhost",
-            user=user_login,
-            password=user_password,
-            database="foodstitute",
-            auth_plugin='mysql_native_password'
-            )
-    except mysql.connector.Error as err:
-        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Something is wrong with your user name or password")
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            print("Database does not exist")
-        else:
-            print(err)
-    else:
-        # Connect to DB
-        return user_db
-
-
-def search_param(category, page):
-    ''' change search param depending on category and page '''
-    search_param = {"search_terms": category,
-                    "search_tag": "categories",
-                    "sort_by": "unique_scans_n",
-                    "page_size": 1000,
-                    "json": 1,
-                    "page": page}
-    return search_param
 
 
 def get_api_products(category):
@@ -92,7 +44,53 @@ def create_table():
 
 
 def init_prod_db(categories):
-    pass
+    ''' function to initialize the database '''
+    DB_NAME = 'foodstitude'
+    # store tables creations in a dictionnary
+    TABLES = {}
+    TABLES['MainCategories'] = (
+        """CREATE TABLE MainCategories (
+            id SMALLINT NOT NULL AUTO_INCREMENT,
+            name VARCHAR(40) NOT NULL,
+            PRIMARY KEY (id)
+            )
+            ENGINE=InnoDB;
+        """)
+
+    TABLES['products'] = (
+        """CREATE TABLE MainCategories (
+            code VARCHAR(13) NOT NULL,
+            product_name name VARCHAR(40) NOT NULL,
+            PRIMARY KEY (code)
+            )
+            ENGINE=InnoDB;
+        """)
+
+    TABLES['favourites'] = (
+        """CREATE TABLE MainCategories (
+            id SMALLINT NOT NULL AUTO_INCREMENT,
+            name VARCHAR(40) NOT NULL,
+            PRIMARY KEY (id)
+            )
+        ENGINE=InnoDB;
+        """)
+
+    for table_name in TABLES:
+    table_description = TABLES[table_name]
+    try:
+        print("Creating table {}: ".format(table_name), end='')
+        cursor.execute(table_description)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+            print("already exists.")
+        else:
+            print(err.msg)
+    else:
+        print("OK")
+
+    cursor.close()
+    cnx.close()
+    
 
 
 def close_connection(connection):
@@ -117,4 +115,4 @@ def save_favourite(code_product):
 if __name__ == "__main__":
     print('Controller used in Foodstitute')
     # test_api('candies')
-    get_api_products('candies')
+    print(get_api_products('candies'))

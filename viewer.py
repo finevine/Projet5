@@ -41,3 +41,4 @@ def split_text(text, numb):
 
 if __name__ == "__main__":
     print('Viewer of Foodstitute')
+    print_title("et dans le viewer j'ai mis des fonctions (tout comme dans le controller) mais je comprends qu'il faut que j'ajoute une classe db avec initialize, add, compare. Je pensais pouvoir mettre ça dans mon controllerje pense qu'il faut que je change de mentor. Elle m'a dit que mon model.py était parfait.")
