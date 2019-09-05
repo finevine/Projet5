@@ -27,6 +27,33 @@ class Category:
                         "page": page}
         return search_param
 
+    def get_api_products(self):
+        ''' This function get the products of a category and return them as a list '''
+        # list of product to output
+        products = []
+        # initialize to page 1 of search result
+        page = 1
+        req = requests.get(API_URL, params=search_param(self, page), headers=SEARCH_HEADER)
+        # output of request as a json file
+        req_output = req.json()
+        # list of product of the output
+        products_output = req_output['products']
+        # store product classes
+        for product in products_output:
+            products.append(Product(product))
+
+        # then increment page to search next page of results
+        while products_output != []:
+            page += 1
+            req = requests.get(API_URL, params=search_param(self, page), headers=SEARCH_HEADER)
+            req_output = req.json()
+            products_output = req_output['products']
+
+            for product in products_output:
+                products.append(Product(product))
+        
+        return products
+
 
 class Product:
     ''' A product from OpenFood Fact with only interesting attributes'''
@@ -68,6 +95,54 @@ class DataBase:
         else:
             # Connect to DB
             return user_db
+
+    def init_prod_db(categories):
+        ''' function to initialize the database '''
+        DB_NAME = 'foodstitude'
+        # store tables creations in a dictionnary
+        TABLES = {}
+        TABLES['MainCategories'] = (
+            """CREATE TABLE MainCategories (
+                id SMALLINT NOT NULL AUTO_INCREMENT,
+                name VARCHAR(40) NOT NULL,
+                PRIMARY KEY (id)
+                )
+                ENGINE=InnoDB;
+            """)
+
+        TABLES['products'] = (
+            """CREATE TABLE Products (
+                code VARCHAR(13) NOT NULL,
+                product_name name VARCHAR(40) NOT NULL,
+                PRIMARY KEY (code)
+                )
+                ENGINE=InnoDB;
+            """)
+
+        TABLES['favourites'] = (
+            """CREATE TABLE Favourites (
+                id SMALLINT NOT NULL AUTO_INCREMENT,
+                name VARCHAR(40) NOT NULL,
+                PRIMARY KEY (id)
+                )
+            ENGINE=InnoDB;
+            """)
+
+        for table_name in TABLES:
+        table_description = TABLES[table_name]
+        try:
+            print("Creating table {}: ".format(table_name), end='')
+            cursor.execute(table_description)
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print("already exists.")
+            else:
+                print(err.msg)
+        else:
+            print("OK")
+
+        cursor.close()
+        cnx.close()
 
 
 class Table:
