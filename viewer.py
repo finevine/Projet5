@@ -39,6 +39,11 @@ def split_text(text, numb):
     res.append(line)
     return res
 
+
+def run():
+    
+
+
 if __name__ == "__main__":
     print('Viewer of Foodstitute')
     print_title("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin molestie hendrerit ipsum interdum elementum. Nam hendrerit nisi finibus euismod malesuada. Donec at est volutpat, pulvinar neque ac, venenatis massa. Cras eget volutpat purus. Vivamus nec dolor eget libero ornare ullamcorper quis sit amet quam. Maecenas maximus dapibus facilisis. Pellentesque pharetra mauris vitae dui auctor, sit amet vulputate velit sodales.")

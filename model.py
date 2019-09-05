@@ -9,13 +9,11 @@ from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES, USER
 
 class Category:
     ''' Class for one of the categories to analyse '''
-    def __init__(self, cat_id, cat_name):
-        self.id = cat_id
+    def __init__(self, cat_name):
         self.name = cat_name
 
     def search_param(self, page):
         ''' change search param depending on category and page
-
         Arguments:
             page {int} -- page of READ API request
         '''
@@ -143,7 +141,9 @@ class DataBase:
 
         cursor.close()
         cnx.close()
-
+    
+    def feed_database(products):
+        
 
 class Table:
     ''' represent a generic Table
