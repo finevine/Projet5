@@ -60,7 +60,20 @@ class Product:
         self.name = product.get('product_name', 'not-applicable')
         self.categories = product.get('categories', 'not-applicable')
         self.nutrition_grade = product.get('nutrition_grade_fr', 'not-applicable')
-    
+
+    def search_product(self, connection):
+        ''' Find categories of a product in the DB 
+        Arguments :
+            connection {sql connection}
+        '''
+        cursor = connection.cursor()
+        query = ("SELECT categories FROM products "
+        "WHERE code == %s")
+        code = self.code
+        cursor.execute(query, code)
+        
+        # result = [categories for categories in cursor] # FAIRE UNE JOINTURE
+
 
 class Favourite(Product):
     ''' A class for saved products '''
@@ -99,29 +112,30 @@ class DataBase:
         DB_NAME = 'foodstitude'
         # store tables creations in a dictionnary
         TABLES = {}
-        TABLES['MainCategories'] = (
-            """CREATE TABLE MainCategories (
-                id SMALLINT NOT NULL AUTO_INCREMENT,
-                name VARCHAR(40) NOT NULL,
-                PRIMARY KEY (id)
+        TABLES['ProductsCategories'] = (
+            """CREATE TABLE ProductsCategories (
+                code VARCHAR(13) NOT NULL,
+                category VARCHAR(40),
+                PRIMARY KEY (code, category)
                 )
                 ENGINE=InnoDB;
             """)
 
-        TABLES['products'] = (
+        TABLES['Products'] = (
             """CREATE TABLE Products (
                 code VARCHAR(13) NOT NULL,
                 product_name name VARCHAR(40) NOT NULL,
+                nutrition_grade VARCHAR(1) NOT NULL,
                 PRIMARY KEY (code)
                 )
                 ENGINE=InnoDB;
             """)
 
-        TABLES['favourites'] = (
+        TABLES['Favourites'] = (
             """CREATE TABLE Favourites (
-                id SMALLINT NOT NULL AUTO_INCREMENT,
-                name VARCHAR(40) NOT NULL,
-                PRIMARY KEY (id)
+                code_healthy VARCHAR(13) NOT NULL,
+                code_unhealthy VARCHAR(13) NOT NULL,
+                PRIMARY KEY (code_healthy, code_unhealthy)
                 )
             ENGINE=InnoDB;
             """)
@@ -143,7 +157,7 @@ class DataBase:
         cnx.close()
     
     def feed_database(products):
-        
+
 
 class Table:
     ''' represent a generic Table

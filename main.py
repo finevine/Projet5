@@ -17,7 +17,7 @@ def main():
         # Run 1 or 2
         choice = run(choice)
 
-    #exit_program()
+    # exit_program()
 
 
     search_param = {"search_terms": "candies",
