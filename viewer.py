@@ -5,7 +5,10 @@ from sys import exit
 
 
 def print_title(title):
-    ''' print a title '''
+    ''' print a title centered
+    Arguments:
+        title {string}
+    '''
     # First header of title with '*' char (WIDTH = 64)
     print(
         f"{'*':*^64}",
@@ -25,7 +28,9 @@ def print_title(title):
 
 
 def split_text(text, numb):
-    ''' function to split a text in *numb* char '''
+    ''' function to split a text in *numb* char
+    Arguments
+        text {string}, numb_of_char {int}'''
     res = []
     line = ''
 
@@ -38,10 +43,6 @@ def split_text(text, numb):
             line = word
     res.append(line)
     return res
-
-
-def run():
-    
 
 
 if __name__ == "__main__":
