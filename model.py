@@ -114,9 +114,13 @@ class DataBase:
         TABLES = {}
         TABLES['ProductsCategories'] = (
             """CREATE TABLE ProductsCategories (
-                code VARCHAR(13) NOT NULL,
-                category VARCHAR(40),
-                PRIMARY KEY (code, category)
+                code VARCHAR(13) NOT NULL PRIMARY KEY,
+                category1 VARCHAR(40) NOT NULL,
+                category2 VARCHAR(40),
+                category3 VARCHAR(40),
+                category4 VARCHAR(40),
+                category5 VARCHAR(40),
+                FOREIGN KEY code REFERENCES Produts(code)
                 )
                 ENGINE=InnoDB;
             """)
@@ -136,18 +140,20 @@ class DataBase:
                 code_healthy VARCHAR(13) NOT NULL,
                 code_unhealthy VARCHAR(13) NOT NULL,
                 PRIMARY KEY (code_healthy, code_unhealthy)
+                FOREIGN KEY (code_healthy, code_unhealthy)
+                    REFERENCES (Produts(code), Produts(code))
                 )
             ENGINE=InnoDB;
             """)
 
         for table_name in TABLES:
-        table_description = TABLES[table_name]
+        table_creation = TABLES[table_name]
         try:
             print("Creating table {}: ".format(table_name), end='')
-            cursor.execute(table_description)
+            cursor.execute(table_creation)
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                print("already exists.")
+                print("Already exists.")
             else:
                 print(err.msg)
         else:
@@ -157,9 +163,3 @@ class DataBase:
         cnx.close()
     
     def feed_database(products):
-
-
-class Table:
-    ''' represent a generic Table
-
-    Arguments:
