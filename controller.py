@@ -11,7 +11,7 @@ from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES
 
 def create_table():
     ''' create a table in the db '''
-    pass    
+    pass
 
 
 def close_connection(connection):

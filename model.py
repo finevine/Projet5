@@ -2,9 +2,11 @@
 The model of the Physical Data model
 '''
 import mysql.connector
+from mysql.connector import errorcode
 import requests
 from getpass import getpass
 from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES, USER
+
 
 ##################################################
 class Product:
@@ -13,12 +15,11 @@ class Product:
         self.code = product.get('code', 'not-applicable')
         self.name = product.get('product_name', 'not-applicable')
         full_categories = product.get('categories', '').lower()
-        #self.categories = product.get('categories', 'not-applicable')
-        #self.categories = (full_categories).split(',')
-        #self.categories = CATEGORIES
         # Keep only intersection of categories and full_categories
-        self.categories = list(set(CATEGORIES) & set(full_categories.split(',')))
-        if self.categories != []:
+        self.categories = list(
+            set(CATEGORIES) & set(full_categories.split(','))
+            )
+        if self.categories:
             while len(self.categories) < len(CATEGORIES):
                 self.categories.append('')
         self.nutrition_grade = product.get(
@@ -28,10 +29,10 @@ class Product:
         categories = ''
         for cat in self.categories:
             categories += cat + ';'
-        return self.name+\
-            "\nCode: "+self.code+\
-            "\nNutriscore: "+self.nutrition_grade+\
-            "\nCategories: "+categories
+        return self.name + \
+            "\nCode: " + self.code + \
+            "\nNutriscore: " + self.nutrition_grade + \
+            "\nCategories: " + categories + "\n"
 
     def find_characteristics(self, db):
         ''' Find categories of a product in the DB
@@ -97,7 +98,7 @@ class Category:
         Arguments:
             page {int} -- page of READ API request
         '''
-        search_param = {"search_terms": self.name,
+        search_param = {"search_terms": ", " + self.name + ",",
                         "search_tag": "categories_tag",
                         "sort_by": "unique_scans_n",
                         "page_size": 1000,
@@ -125,7 +126,8 @@ class Category:
             products.append(Product(product))
 
         # then increment page to search next page of results
-        while products_output != []:
+        # COMMENTED FOR TESTING PURPOSE
+        while products_output:
             page += 1
             req = requests.get(
                 API_URL,
@@ -175,7 +177,7 @@ class DataBase:
         TABLES['Products'] = (
             """CREATE TABLE Products (
                 code VARCHAR(13) NOT NULL,
-                name VARCHAR(40) NOT NULL,
+                name VARCHAR(100) NOT NULL,
                 category1 VARCHAR(40) NOT NULL,
                 category2 VARCHAR(40),
                 category3 VARCHAR(40),
@@ -206,27 +208,27 @@ class DataBase:
         #         )
         #     ENGINE=InnoDB;
         #     """)
-        
+
         # Open cursor linked to DB (self)
         connection = self.connection
         cursor = connection.cursor()
 
-        #Create tables
+        # Create tables
         for table_name in TABLES:
             table_creation = TABLES[table_name]
             try:
                 print(f'Creating table {table_name}: ', end='')
                 cursor.execute(table_creation)
             except mysql.connector.Error as err:
-                if err.errno == mysql.connector.errorcode.ER_TABLE_EXISTS_ERROR:
+                if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
                     print("Already exists.")
                 else:
                     print(err.msg)
             else:
-                print("OK")    
-        #Close cursor
+                print("OK")
+        # Close cursor
         cursor.close()
-    
+
     def feed_database(self, category):
         ''' Method to feed the database
         Arguments:
@@ -235,6 +237,6 @@ class DataBase:
         products_list = category.get_api_products()
 
         for product in products_list:
-            if product.categories != [] and product.nutrition_grade != []:
+            if product.categories and product.nutrition_grade:
                 product.insert(self)
         print('Database ready to go!')

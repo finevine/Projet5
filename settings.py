@@ -5,6 +5,14 @@ SEARCH_PARAM = {"search_terms": {},
                 "page_size": 1000,
                 "json": 1}
 USER = 'vft'
-SEARCH_HEADER = {"user-agent": "Foodstitute - https://github.com/finevine/Projet5"}
+SEARCH_HEADER = {
+    "user-agent": "Foodstitute - https://github.com/finevine/Projet5"
+    }
 DATABASE = 'foodstitute'
-CATEGORIES = ['breakfast-cereals', 'seafood', 'dark-chocolates', 'fruit-based-beverages', 'nuts']
+CATEGORIES = [
+    'breakfast-cereals',
+    'seafood',
+    'dark-chocolates',
+    'fruit-based-beverages',
+    'nuts'
+    ]

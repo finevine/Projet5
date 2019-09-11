@@ -11,10 +11,12 @@ def main():
     print(products[2])
     print(products[3])
 
-def main2(): 
+
+def main2():
     db = DataBase()
     db.create_tables()
-    db.feed_database(Category('candies'))
+    db.feed_database(Category('nuts'))
+    # print(Category('nuts').get_api_products())
     db.connection.commit()
     db.connection.close()
 
