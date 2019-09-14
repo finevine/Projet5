@@ -1,18 +1,18 @@
 '''
 Setup of Foodstitute
 '''
-from model import *
-from functions_setup import connect_client, init_prod_db, close_connection
-
+import settings
+import model
 
 def main():
-    '''
-    Main loop for the program
-    '''
-    user_db = connect_client()
-
-    
-    close_connection(user_db)
+    db = model.DataBase()
+    db.create_tables()
+    for category in settings.CATEGORIES:
+        db.feed_database(model.Category(category))
+    # breakpoint()
+    # print(Category('nuts').get_api_products())
+    db.connection.commit()
+    db.connection.close()
 
 
 if __name__ == "__main__":

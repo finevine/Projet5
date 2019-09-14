@@ -47,7 +47,8 @@ class Product:
                 WHERE code = %s""")
             code = self.code
             cursor.execute(query, code)
-            categories = [line for line in cursor] # A VOIR SI ÇA MARCHE OU FETCHALL
+            categories = [line for line in cursor]
+            # A VOIR SI ÇA MARCHE OU FETCHALL
 
             query = (
                 """SELECT nutrition_grade
@@ -62,7 +63,8 @@ class Product:
             print(f'Failed to get record from MySQL table: {error}')
 
     def insert_into(self, db):
-        cursor = db.connection.cursor()
+        connection = db.connection
+        cursor = connection.cursor()
         try:
             # This query uses a dictionnary
             query = (
@@ -88,7 +90,8 @@ class Product:
 
             cursor.close()
         except mysql.connector.Error as error:
-            print(f'Failed to insert record to MySQL table: {error}')
+            pass
+            # print(f'Failed to insert record to MySQL table: {error}')
 
 
 ##################################################
@@ -243,4 +246,4 @@ class DataBase:
         for product in products_list:
             if product.categories and product.nutrition_grade:
                 product.insert_into(self)
-        print('Database ready to go!')
+        print(category.name + ' inserted in database!')
