@@ -47,7 +47,7 @@ class Product:
                 WHERE code = %s""")
             code = self.code
             cursor.execute(query, code)
-            categories = cursor.fetchall()
+            categories = [line for line in cursor] # A VOIR SI ÇA MARCHE OU FETCHALL
 
             query = (
                 """SELECT nutrition_grade
@@ -61,17 +61,31 @@ class Product:
         except mysql.connector.Error as error:
             print(f'Failed to get record from MySQL table: {error}')
 
-    def insert(self, db):
+    def insert_into(self, db):
         cursor = db.connection.cursor()
         try:
+            # This query uses a dictionnary
             query = (
-                """INSERT INTO Products
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
-            cat1, cat2, cat3, cat4, cat5 = self.categories
-            code = (self.code, self.name,
-                    cat1, cat2, cat3, cat4, cat5,
-                    self.nutrition_grade)
+                'INSERT INTO Products '
+                '(code,  name, '
+                'category1, category2, category3, category4, category5, '
+                'nutrition_grade) '
+                'VALUES (%(code)s, %(name)s, '
+                '%(cat1)s, %(cat2)s, %(cat3)s, %(cat4)s, %(cat5)s, '
+                '%(nutrition_grade)s)'
+                )
+            code = {
+                'code': self.code,
+                'name': self.name,
+                'cat1': self.categories[0],
+                'cat2': self.categories[1],
+                'cat3': self.categories[2],
+                'cat4': self.categories[3],
+                'cat5': self.categories[4],
+                'nutrition_grade': self.nutrition_grade
+            }
             cursor.execute(query, code)
+
             cursor.close()
         except mysql.connector.Error as error:
             print(f'Failed to insert record to MySQL table: {error}')
@@ -85,6 +99,11 @@ class Favourite(Product):
         # code substitute is the code of the product that it substitute
         self.code_unhealthy = code_unhealthy
         self.code_healthy = code_healthy
+
+    def save_favourite(code_product):
+        ''' save a product substituted as favourite '''
+        # compare_product(code_product)
+        pass
 
 
 ##################################################
@@ -126,7 +145,6 @@ class Category:
             products.append(Product(product))
 
         # then increment page to search next page of results
-        # COMMENTED FOR TESTING PURPOSE
         while products_output:
             page += 1
             req = requests.get(
@@ -144,7 +162,7 @@ class Category:
 ##################################################
 class DataBase:
     ''' Database class '''
-    def __init__(self):
+    def __init__(self):  # essayer d'hériter de connection.MySQLConnection()
         try:
             user_password = getpass('Database password? ')
             user_db = mysql.connector.connect(
@@ -164,9 +182,6 @@ class DataBase:
         else:
             # Connect to DB
             self.connection = user_db
-
-    def close(self):
-        self.close()
 
     def create_tables(self):
         ''' Function to initialize the database
@@ -191,23 +206,12 @@ class DataBase:
 
         TABLES['Favourites'] = (
             """CREATE TABLE Favourites (
-                code_healthy VARCHAR(13) NOT NULL,
-                code_unhealthy VARCHAR(13) NOT NULL,
+                code_healthy VARCHAR(13) NOT NULL REFERENCES Products(code),
+                code_unhealthy VARCHAR(13) NOT NULL REFERENCES Products(code),
                 PRIMARY KEY (code_healthy, code_unhealthy)
                 )
             ENGINE=InnoDB;
             """)
-
-        # TABLES['Favourites'] = (
-        #     """CREATE TABLE Favourites (
-        #         code_healthy VARCHAR(13) NOT NULL,
-        #         code_unhealthy VARCHAR(13) NOT NULL,
-        #         PRIMARY KEY (code_healthy, code_unhealthy),
-        #         FOREIGN KEY (code_healthy, code_unhealthy)
-        #             REFERENCES (Produts(code), Produts(code))
-        #         )
-        #     ENGINE=InnoDB;
-        #     """)
 
         # Open cursor linked to DB (self)
         connection = self.connection
@@ -238,5 +242,5 @@ class DataBase:
 
         for product in products_list:
             if product.categories and product.nutrition_grade:
-                product.insert(self)
+                product.insert_into(self)
         print('Database ready to go!')

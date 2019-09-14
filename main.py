@@ -2,6 +2,7 @@
 Main file for running Foodstitute
 '''
 import requests
+import pdb
 from model import *
 
 
@@ -16,6 +17,7 @@ def main2():
     db = DataBase()
     db.create_tables()
     db.feed_database(Category('nuts'))
+    # breakpoint()
     # print(Category('nuts').get_api_products())
     db.connection.commit()
     db.connection.close()
