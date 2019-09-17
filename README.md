@@ -20,16 +20,16 @@ The product's architecture can be found on [Open Food Facts wiki](https://en.wik
 
 ### Customize settings.py
 
-To customize the categories you want to explore, simply change the category in `settings.py`. Add (or replace) a category using its tag in [word.openfoodfact.org](https://world.openfoodfacts.org/). The full list of categories is available [on their website](https://world.openfoodfacts.org/categories.xml).
+To customize the categories you want to explore (**Maximum 5 categories**), simply change the category in `settings.py`. Add (or replace) a category using its tag in [word.openfoodfact.org](https://world.openfoodfacts.org/). The full list of categories is available [on their website](https://world.openfoodfacts.org/categories.xml).
 
 ### Grant access to local database
 
 [MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html) must be installed and you must know the login and password to connect to this client.
-`CREATE USER 'id'@'localhost' IDENTIFIED BY 'password';`
+`CREATE USER 'id'@'localhost' IDENTIFIED BY 'mypassword';`
 
-Then run setup.py
+Then run setup.py Password
 ```bash
-python setup.py
+python setup.py mypassword
 ```
 
 ## Running it

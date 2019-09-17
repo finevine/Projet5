@@ -31,7 +31,8 @@ def print_title(title):
 def split_text(text, numb):
     ''' function to split a text in *numb* char
     Arguments
-        text {string}, numb_of_char {int}'''
+        text {string}, numb_of_char {int}
+    '''
     res = []
     line = ''
 
@@ -53,11 +54,13 @@ def start_view():
     """)
 
 
-def get_choice(choices):
+def get_choice(question, choices, step):
     ''' Get choice in a list
     Arguments:
+        question:{string}
         choices: {list}
     '''
+    print(question, sep='\n')
     # list all possibilities
     for choice_num in range(len(choices)):
         print(
@@ -89,7 +92,8 @@ def get_choice(choices):
                 '] or (B)ack or (Q)uit'
             )
         else:
-            return choice
+            res = {'B': step - 1, 'Q': -1}
+            return (choice, res.get(choice, step + 1))
 
 
 def run(choice):

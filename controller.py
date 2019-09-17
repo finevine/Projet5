@@ -6,17 +6,7 @@ import model
 import view
 
 
-def main():
-    db = DataBase()
-    db.create_tables()
-    db.feed_database(Category('nuts'))
-    # breakpoint()
-    # print(Category('nuts').get_api_products())
-    db.connection.commit()
-    db.connection.close()
-    
-
-def compare_products(code_product):
+def compare_products(code_product, db):
     ''' compare 2 products of the database'''
     # trier par catégories dans les 10 premiers méthode de produits
     pass
@@ -26,7 +16,16 @@ def compare_products(code_product):
 def start():
     view.start_view()
 
+
+def run():
+    step = 0
+    question = 'Which category of product you want to use?'
+    choice_list = model.CATEGORIES
+    while step >= 0:
+        choice, step = view.get_choice(question, choice_list, step)
+        print(choice, step)
+
+
 if __name__ == "__main__":
-    print('Controller used in Foodstitute')
-    # test_api('candies')
-    view.get_choice(model.CATEGORIES)
+    view.start_view()
+    run()

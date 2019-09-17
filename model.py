@@ -45,7 +45,7 @@ class Product:
                 """SELECT category1, category2, category3, category4, category5
                 FROM Products
                 WHERE code = %s""")
-            code = self.code
+            code = (self.code,)
             cursor.execute(query, code)
             categories = [line for line in cursor]
             # A VOIR SI ÇA MARCHE OU FETCHALL
@@ -54,7 +54,7 @@ class Product:
                 """SELECT nutrition_grade
                 FROM Products
                 WHERE code = %s""")
-            code = self.code
+            code = (self.code,)
             cursor.execute(query, code)
             nutrition_grade = cursor.fetchall()
             cursor.close()
@@ -161,17 +161,39 @@ class Category:
                 products.append(Product(product))
         return products
 
+    def get_products(self, db):
+        '''
+        Get Products that are in Category in the DB
+        Arguments:
+            db {Database}
+        '''
+        cursor = db.connection.cursor()
+        query = (
+            "SELECT * FROM Products "
+            "WHERE category1 = %(cat)s "
+            "OR category2 = %(cat)s "
+            "OR category3 = %(cat)s "
+            "OR category4 = %(cat)s "
+            "OR category5 = %(cat)s"
+            )
+        parameter = {'cat': self.name}
+        cursor.execute(query, parameter)
+        products = cursor.fetchall()
+        print(products)
+        cursor.close()
+
 
 ##################################################
 class DataBase:
     ''' Database class '''
-    def __init__(self):  # essayer d'hériter de connection.MySQLConnection()
+    # essayer d'hériter de connection.MySQLConnection()
+    def __init__(self, MDP):
         try:
-            user_password = getpass('Database password? ')
+            # user_password = getpass('Database password? ')
             user_db = mysql.connector.connect(
                 host="localhost",
                 user=USER,
-                password=user_password,
+                password=MDP,
                 database="foodstitute",
                 auth_plugin='mysql_native_password'
                 )
@@ -246,4 +268,4 @@ class DataBase:
         for product in products_list:
             if product.categories and product.nutrition_grade:
                 product.insert_into(self)
-        print(category.name + ' inserted in database!')
+        print('Inserted in database: ' + category.name)
