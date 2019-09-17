@@ -40,7 +40,7 @@ def main3():
     Pass = args.Pass
     # Connect to DB
     db = model.DataBase(Pass)
-    model.Category('seafood').get_products(db)
+    print(model.Category('seafood').get_products(db))
 
 
 if __name__ == "__main__":

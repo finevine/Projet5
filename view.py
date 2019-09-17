@@ -93,7 +93,8 @@ def get_choice(question, choices, step):
             )
         else:
             res = {'B': step - 1, 'Q': -1}
-            return (choice, res.get(choice, step + 1))
+            # return choice, step
+            return (choices[int(choice) - 1], res.get(choice, step + 1))
 
 
 def run(choice):

@@ -10,9 +10,9 @@ SEARCH_HEADER = {
     }
 DATABASE = 'foodstitute'
 CATEGORIES = [
-    'breakfast-cereals',
+    'meats',
     'seafood',
-    'dark-chocolates',
-    'fruit-based-beverages',
+    'chocolates',
+    'compotes',
     'nuts'
     ]

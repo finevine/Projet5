@@ -179,8 +179,9 @@ class Category:
         parameter = {'cat': self.name}
         cursor.execute(query, parameter)
         products = cursor.fetchall()
-        print(products)
+        # print(products)
         cursor.close()
+        return products
 
 
 ##################################################
