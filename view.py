@@ -57,7 +57,7 @@ def start_view():
 def get_choice(question, choices, step):
     ''' Get choice in a list
     Arguments:
-        question:{string}
+        question: {string}
         choices: {list}
     '''
     print(question, sep='\n')
@@ -95,22 +95,6 @@ def get_choice(question, choices, step):
             res = {'B': step - 1, 'Q': -1}
             # return choice, step
             return (choices[int(choice) - 1], res.get(choice, step + 1))
-
-
-def run(choice):
-    '''
-    Main run funtion
-    '''
-    if choice == '1':
-        res = substitute(CATEGORIES)
-    elif choice == '2':
-        res = manage_personnal_food()
-    elif choice == 'Q':
-        exit_program()
-    else:
-        res = start()
-
-    return res
 
 
 if __name__ == "__main__":

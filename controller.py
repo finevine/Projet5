@@ -20,7 +20,6 @@ def choose_category():
 def choose_product(category, db):
     question = 'Which product do you want to substitute?'
     products = model.Category(category).get_products(db)
-    breakpoint()
     return view.get_choice(question, list(zip(*products))[1], 2)
 
 
