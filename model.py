@@ -4,6 +4,7 @@ The model of the Physical Data model
 import mysql.connector
 from mysql.connector import errorcode
 import requests
+import pdb
 from getpass import getpass
 from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES, USER
 
@@ -19,9 +20,6 @@ class Product:
         self.categories = list(
             set(CATEGORIES) & set(full_categories.split(','))
             )
-        if self.categories:
-            while len(self.categories) < len(CATEGORIES):
-                self.categories.append('')
         self.nutrition_grade = product.get(
             'nutrition_grade_fr', '')
 
@@ -32,7 +30,7 @@ class Product:
         return self.name + \
             "\nCode: " + self.code + \
             "\nNutriscore: " + self.nutrition_grade + \
-            "\nCategories: " + categories + "\n"
+            "\nCategories: " + categories + "\n"        
 
     def find_characteristics(self, db):
         ''' Find categories of a product in the DB
@@ -42,7 +40,7 @@ class Product:
         try:
             cursor = db.connection.cursor()
             query = (
-                """SELECT category1, category2, category3, category4, category5
+                """SELECT category
                 FROM Products
                 WHERE code = %s""")
             code = (self.code,)
@@ -67,26 +65,19 @@ class Product:
         cursor = connection.cursor()
         try:
             # This query uses a dictionnary
-            query = (
-                'INSERT INTO Products '
-                '(code,  name, '
-                'category1, category2, category3, category4, category5, '
-                'nutrition_grade) '
-                'VALUES (%(code)s, %(name)s, '
-                '%(cat1)s, %(cat2)s, %(cat3)s, %(cat4)s, %(cat5)s, '
-                '%(nutrition_grade)s)'
-                )
-            code = {
-                'code': self.code,
-                'name': self.name,
-                'cat1': self.categories[0],
-                'cat2': self.categories[1],
-                'cat3': self.categories[2],
-                'cat4': self.categories[3],
-                'cat5': self.categories[4],
-                'nutrition_grade': self.nutrition_grade
-            }
-            cursor.execute(query, code)
+            for category in self.categories:
+                query = (
+                    'INSERT INTO Products '
+                    '(code,  name, category, nutrition_grade) '
+                    'VALUES (%(code)s, %(name)s, %(cat)s, %(nutrition_grade)s)'
+                    )
+                code = {
+                    'code': self.code,
+                    'name': self.name,
+                    'cat': category,
+                    'nutrition_grade': self.nutrition_grade
+                }
+                cursor.execute(query, code)
 
             cursor.close()
         except mysql.connector.Error as error:
@@ -170,11 +161,7 @@ class Category:
         cursor = db.connection.cursor()
         query = (
             "SELECT * FROM Products "
-            "WHERE category1 = %(cat)s "
-            "OR category2 = %(cat)s "
-            "OR category3 = %(cat)s "
-            "OR category4 = %(cat)s "
-            "OR category5 = %(cat)s"
+            "WHERE category = %(cat)s"
             )
         parameter = {'cat': self.name}
         cursor.execute(query, parameter)
@@ -219,13 +206,9 @@ class DataBase:
             """CREATE TABLE Products (
                 code VARCHAR(13) NOT NULL,
                 name VARCHAR(100) NOT NULL,
-                category1 VARCHAR(40) NOT NULL,
-                category2 VARCHAR(40),
-                category3 VARCHAR(40),
-                category4 VARCHAR(40),
-                category5 VARCHAR(40),
+                category VARCHAR(40) NOT NULL,
                 nutrition_grade VARCHAR(1) NOT NULL,
-                PRIMARY KEY (code)
+                PRIMARY KEY (code, category)
                 )
                 ENGINE=InnoDB;
             """)
@@ -270,3 +253,15 @@ class DataBase:
             if product.categories and product.nutrition_grade:
                 product.insert_into(self)
         print('Inserted in database: ' + category.name)
+
+    def drop_Products(self):
+        '''
+        DROP TABLE Products
+        Arguments:
+            table {string}
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        query = "DROP TABLE IF EXISTS Products "
+        cursor.execute(query)
+        cursor.close()

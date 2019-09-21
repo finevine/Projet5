@@ -27,6 +27,8 @@ def main():
     Pass = args.Pass
     # Connect to DB
     db = model.DataBase(Pass)
+    # Drop Tables if exist
+    db.drop_Products()
     # Create Tables
     db.create_tables()
     for category in settings.CATEGORIES:

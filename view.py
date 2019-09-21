@@ -54,7 +54,7 @@ def start_view():
     """)
 
 
-def get_choice(question, choices, step):
+def get_choice(question, choices):
     ''' Get choice in a list
     Arguments:
         question: {string}
@@ -75,11 +75,13 @@ def get_choice(question, choices, step):
             # Try if it's an integer
             try:
                 int(choice)
-                # If not check if it's Back or Quit
+                # If not: check if it's Back or Quit
             except ValueError:
                 if choice not in ['B', 'Q']:
                     # If not raise error
                     raise ValueError
+                else:
+                    return choice
             else:
                 # Else check if it's in the good range
                 if int(choice) not in range(1, len(choices) + 1):
@@ -92,9 +94,8 @@ def get_choice(question, choices, step):
                 '] or (B)ack or (Q)uit'
             )
         else:
-            res = {'B': step - 1, 'Q': -1}
-            # return choice, step
-            return (choices[int(choice) - 1], res.get(choice, step + 1))
+            # return choice
+            return (choices[int(choice) - 1])
 
 
 if __name__ == "__main__":
