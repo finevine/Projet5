@@ -54,13 +54,16 @@ def start_view():
     """)
 
 
-def get_choice(question, choices):
+def get_choice(question, choices, precision=''):
     ''' Get choice in a list
     Arguments:
         question: {string}
         choices: {list}
     '''
-    print(question, sep='\n')
+    print(
+        '****************************************************************',
+        question, sep='\n'
+        )
     # list all possibilities
     for choice_num in range(len(choices)):
         print(
@@ -71,7 +74,7 @@ def get_choice(question, choices):
     # detect errors in answer
     while not good_choice:
         try:
-            choice = input('Make your Choice: ').upper()
+            choice = input(precision + 'Make your Choice: ').upper()
             # Try if it's an integer
             try:
                 int(choice)
@@ -95,7 +98,7 @@ def get_choice(question, choices):
             )
         else:
             # return choice
-            return (choices[int(choice) - 1])
+            return int(choice) - 1
 
 
 if __name__ == "__main__":

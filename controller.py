@@ -8,6 +8,7 @@ import argparse
 import pdb
 KEYS = ['code', 'product_name', 'categories', 'nutrition_grade_fr']
 
+
 def run():
     # Parse arguments
     parser = argparse.ArgumentParser()
@@ -28,6 +29,7 @@ def run():
     # function, parameter = history[-1]('', db)
     choose_action('', db)
 
+
 def choose_action(_, db):
     '''
     chose a basic action
@@ -38,13 +40,14 @@ def choose_action(_, db):
     question = 'What do you want?'
     answers = ['Substitute a product.', 'Manage favourites.']
     res = {
-        'Substitute a product.': choose_category,
-        'Manage favourites.': manage_favourites,
+        '0': choose_category,
+        '1': manage_favourites,
         'B': quit_app,
         'Q': quit_app,
     }
     choice = view.get_choice(question, answers)
-    return res.get(choice)(choice, db)
+    res.get(str(choice))(choice, db)
+
 
 def choose_category(_, db):
     '''
@@ -60,9 +63,10 @@ def choose_category(_, db):
     }
     choice = view.get_choice(question, model.CATEGORIES)
     # Default is choose_product, else choose_action or quit_app
-    return res.get(choice, choose_product)(choice, db)
+    res.get(choice, choose_product)(model.CATEGORIES[choice], db)
 
-def choose_product(category, db):
+
+def choose_product(category, db, warning=''):
     '''
     chose a category
     Arguments:
@@ -70,26 +74,57 @@ def choose_product(category, db):
         db {database}
     '''
     question = 'Which product do you want to substitute?'
-    products = model.Category(category).get_products(db)
-    products_codes = list(zip(*products))[0]
-    products_names = list(zip(*products))[1]
+    # list of Product
+    products = db.get_products(category)
+    # list of codes
+    products_codes = [product.code for product in products]
+    # list of names
+    products_names = [product.name for product in products]
     res = {
         'B': choose_category,
         'Q': quit_app,
     }
-    choice = view.get_choice(question, products_names)
-    breakpoint()
-    return res.get(choice, find_product)(products_codes[products_names.index(choice)], db)
+    choice = view.get_choice(question, products_names, warning)
+    # By default, return choose_healthier(Product, db)
+    res.get(choice, choose_healthier)(products[choice], db)
     # return view.get_choice(question, list(zip(*products))[1])
 
-def find_product(code, db):
-    print("Choisir un meilleur produit:\n foo\n bar\n")
-    save_product(code, db)
 
-def save_product(code, db):
-    print('on enregistre' + code + 'son substitut')
-    print("on va dire que c'est bon")
-    choose_action(code, db)
+def choose_healthier(product, db):
+    code = product.code
+    category = product.category
+    # get product candidtes to be substitutes
+    potential_substitutes = db.find_healthier(product)
+    # check if there are candidates
+    if not potential_substitutes:
+        warning = "NO HEALTHIER PRODUCT IN CATEGORY!\n"
+        choose_product(product.category, db, warning)
+    else:
+        question = (
+            "Those products are healthier which one do you want to save?")
+        # make a choice amongst candidates names
+        choice = view.get_choice(
+            question, [prod.name for prod in potential_substitutes]
+            )
+        # res = {
+        #     'B': choose_category,
+        #     'Q': quit_app,
+        # }
+        # # By default, return choose_healthier(Product, db)
+        # if int(choice) == choice:
+        #     res.get(choice)(product.category, db)
+
+        # get the one and then save it.
+        substitute = potential_substitutes[choice]
+        save_product(product, substitute, db)
+
+
+def save_product(product, substitute, db):
+    print(product)
+    print("à remplacer par")
+    print(substitute)
+    choose_action(product.code, db)
+
 
 def manage_favourites(_, db):
     '''
@@ -99,6 +134,7 @@ def manage_favourites(_, db):
         db {database}: database
     '''
     pass
+
 
 def quit_app(_, db):
     '''

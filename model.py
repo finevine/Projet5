@@ -10,17 +10,17 @@ from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES, USER
 
 
 ##################################################
-class Product:
+class Product_API:
     ''' A product from OpenFood Fact with only interesting attributes'''
-    def __init__(self, product):
-        self.code = product.get('code', 'not-applicable')
-        self.name = product.get('product_name', 'not-applicable')
+    def __init__(self, product_dict):
+        self.code = product_dict.get('code', 'not-applicable')
+        self.name = product_dict.get('product_name', 'not-applicable')
         full_categories = product.get('categories', '').lower()
         # Keep only intersection of categories and full_categories
         self.categories = list(
             set(CATEGORIES) & set(full_categories.split(','))
             )
-        self.nutrition_grade = product.get(
+        self.nutrition_grade = product_dict.get(
             'nutrition_grade_fr', '')
 
     def __repr__(self):
@@ -30,41 +30,13 @@ class Product:
         return self.name + \
             "\nCode: " + self.code + \
             "\nNutriscore: " + self.nutrition_grade + \
-            "\nCategories: " + categories + "\n"        
-
-    def find_characteristics(self, db):
-        ''' Find categories of a product in the DB
-        Arguments :
-            connection {sql connection}
-        '''
-        try:
-            cursor = db.connection.cursor()
-            query = (
-                """SELECT category
-                FROM Products
-                WHERE code = %s""")
-            code = (self.code,)
-            cursor.execute(query, code)
-            categories = [line for line in cursor]
-            # A VOIR SI ÇA MARCHE OU FETCHALL
-
-            query = (
-                """SELECT nutrition_grade
-                FROM Products
-                WHERE code = %s""")
-            code = (self.code,)
-            cursor.execute(query, code)
-            nutrition_grade = cursor.fetchall()
-            cursor.close()
-            return (categories, nutrition_grade)
-        except mysql.connector.Error as error:
-            print(f'Failed to get record from MySQL table: {error}')
+            "\nCategories: " + categories + "\n"
 
     def insert_into(self, db):
         connection = db.connection
         cursor = connection.cursor()
         try:
-            # This query uses a dictionnary
+            # Product_API may have multiples categories of CATEGORIES
             for category in self.categories:
                 query = (
                     'INSERT INTO Products '
@@ -83,6 +55,36 @@ class Product:
         except mysql.connector.Error as error:
             pass
             # print(f'Failed to insert record to MySQL table: {error}')
+
+
+##################################################
+class Product:
+    ''' A class for products (row in Table Product) '''
+    def __init__(self, cursor_row):
+        self.code = cursor_row[0]
+        self.name = cursor_row[1]
+        self.category = cursor_row[2]
+        self.nutrition_grade = cursor_row[3]
+
+    def __repr__(self):
+        return self.code + \
+            "\nName: " + self.name + \
+            "\nCategories: " + self.category + \
+            "\nNutriscore: " + self.nutrition_grade
+
+    def __gt__(self, other):
+        '''
+        Compare self to other with self > other in nutrition quality
+        '''
+        nutrition_grades = {
+            'a': 5,
+            'b': 4,
+            'c': 3,
+            'd': 2,
+            'e': 1,
+        }
+        return nutrition_grades[self.nutrition_grade] > \
+            nutrition_grades[other.nutrition_grade]
 
 
 ##################################################
@@ -121,7 +123,7 @@ class Category:
 
     def get_api_products(self):
         ''' This function get the products of a category
-        and return them as a list '''
+        and return them as a list of Product_API '''
         # list of product to output
         products = []
         # initialize to page 1 of search result
@@ -136,7 +138,7 @@ class Category:
         products_output = req_output['products']
         # store product classes
         for product in products_output:
-            products.append(Product(product))
+            products.append(Product_API(product))
 
         # then increment page to search next page of results
         while products_output:
@@ -149,25 +151,7 @@ class Category:
             products_output = req_output['products']
 
             for product in products_output:
-                products.append(Product(product))
-        return products
-
-    def get_products(self, db):
-        '''
-        Get Products that are in Category in the DB
-        Arguments:
-            db {Database}
-        '''
-        cursor = db.connection.cursor()
-        query = (
-            "SELECT * FROM Products "
-            "WHERE category = %(cat)s"
-            )
-        parameter = {'cat': self.name}
-        cursor.execute(query, parameter)
-        products = cursor.fetchall()
-        # print(products)
-        cursor.close()
+                products.append(Product_API(product))
         return products
 
 
@@ -257,11 +241,42 @@ class DataBase:
     def drop_Products(self):
         '''
         DROP TABLE Products
-        Arguments:
-            table {string}
         '''
         connection = self.connection
         cursor = connection.cursor()
-        query = "DROP TABLE IF EXISTS Products "
+        query = ("DROP TABLE IF EXISTS Products ")
         cursor.execute(query)
         cursor.close()
+
+    def get_products(self, category):
+        '''
+        Get Products that are in Category in the DB
+        Arguments:
+            category {string}
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        query = (
+            "SELECT * FROM Products "
+            "WHERE category = %(cat)s"
+            )
+        parameter = {'cat': category}
+        cursor.execute(query, parameter)
+        # products = cursor.fetchall()
+        return [Product(prod) for prod in cursor]
+        cursor.close()
+
+    def find_healthier(self, product):
+        '''
+        Find healthier product
+        Arguments:
+            product {Product}
+        '''
+        healthier_products = []
+        # get product from the same category
+        products_of_cat = self.get_products(product.category)
+        for product_of_cat in products_of_cat:
+            # for each check if healthier
+            if product_of_cat > product:
+                healthier_products.append(product_of_cat)
+        return healthier_products
