@@ -9,13 +9,15 @@ from getpass import getpass
 from settings import API_URL, SEARCH_HEADER, DATABASE, CATEGORIES, USER
 
 
-##################################################
+#####################################################
+#                 PRODUCT IN THE API                #
+#####################################################
 class Product_API:
     ''' A product from OpenFood Fact with only interesting attributes'''
     def __init__(self, product_dict):
         self.code = product_dict.get('code', 'not-applicable')
         self.name = product_dict.get('product_name', 'not-applicable')
-        full_categories = product.get('categories', '').lower()
+        full_categories = product_dict.get('categories', '').lower()
         # Keep only intersection of categories and full_categories
         self.categories = list(
             set(CATEGORIES) & set(full_categories.split(','))
@@ -32,7 +34,7 @@ class Product_API:
             "\nNutriscore: " + self.nutrition_grade + \
             "\nCategories: " + categories + "\n"
 
-    def insert_into(self, db):
+    def insert_from_API(self, db):
         connection = db.connection
         cursor = connection.cursor()
         try:
@@ -57,7 +59,9 @@ class Product_API:
             # print(f'Failed to insert record to MySQL table: {error}')
 
 
-##################################################
+#####################################################
+#                    PRODUCT IN DB                  #
+#####################################################
 class Product:
     ''' A class for products (row in Table Product) '''
     def __init__(self, cursor_row):
@@ -85,24 +89,22 @@ class Product:
         }
         return nutrition_grades[self.nutrition_grade] > \
             nutrition_grades[other.nutrition_grade]
+    
 
-
-##################################################
-class Favourite(Product):
+#####################################################
+#                    FAVOURITE IN DB                #
+#####################################################
+class Favourite:
     ''' A class for saved products '''
-    def __init__(self, code_unhealthy, code_healthy):
-        super().__init__(code_unhealthy, code_healthy)
-        # code substitute is the code of the product that it substitute
-        self.code_unhealthy = code_unhealthy
-        self.code_healthy = code_healthy
-
-    def save_favourite(code_product):
-        ''' save a product substituted as favourite '''
-        # compare_product(code_product)
-        pass
+    def __init__(self, code_healthy):
+        super().__init__()
+        # code_healthy is the code of the substitute
+        self.code_substitute = code_healthy
 
 
-##################################################
+#####################################################
+#                    A CATEGORY                     #
+#####################################################
 class Category:
     ''' Class for one of the categories to analyse '''
     def __init__(self, cat_name):
@@ -155,7 +157,9 @@ class Category:
         return products
 
 
-##################################################
+#####################################################
+#                    THE DATABASE                   #
+#####################################################
 class DataBase:
     ''' Database class '''
     # essayer d'hériter de connection.MySQLConnection()
@@ -199,9 +203,10 @@ class DataBase:
 
         TABLES['Favourites'] = (
             """CREATE TABLE Favourites (
-                code_healthy VARCHAR(13) NOT NULL REFERENCES Products(code),
                 code_unhealthy VARCHAR(13) NOT NULL REFERENCES Products(code),
-                PRIMARY KEY (code_healthy, code_unhealthy)
+                code_healthy VARCHAR(13) NOT NULL REFERENCES Products(code),
+                category VARCHAR(40) NOT NULL REFERENCES Products(category),
+                PRIMARY KEY (code_healthy, code_unhealthy, category)
                 )
             ENGINE=InnoDB;
             """)
@@ -235,7 +240,7 @@ class DataBase:
 
         for product in products_list:
             if product.categories and product.nutrition_grade:
-                product.insert_into(self)
+                product.insert_from_API(self)
         print('Inserted in database: ' + category.name)
 
     def drop_Products(self):
@@ -280,3 +285,31 @@ class DataBase:
             if product_of_cat > product:
                 healthier_products.append(product_of_cat)
         return healthier_products
+
+
+    def save_favourite(self, product, substitute):
+        ''' save a product substituted as favourite
+        Arguments:
+            product, substitute {Product}
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        try:
+            query = (
+                    'INSERT INTO Favourites '
+                    '(code_unhealthy, code_healthy, category) '
+                    'VALUES (%(code_product)s, %(code_substitute)s, %(cat)s)'
+            )
+            code = {
+                    'code_product': product.code,
+                    'code_substitute': substitute.code,
+                    'cat': product.category
+            }
+            cursor.execute(query, code)
+            cursor.close()
+            # Commit changes
+            connection.commit()
+            # Finally close connection
+            connection.close()
+        except mysql.connector.Error as error:
+            print(f'Failed to insert Favourite to MySQL table: {error}')

@@ -9,6 +9,9 @@ import pdb
 KEYS = ['code', 'product_name', 'categories', 'nutrition_grade_fr']
 
 
+#####################################################
+#                  RUN & CHOOSE ACTION              #
+#####################################################
 def run():
     # Parse arguments
     parser = argparse.ArgumentParser()
@@ -49,6 +52,9 @@ def choose_action(_, db):
     res.get(str(choice))(choice, db)
 
 
+#####################################################
+#            CHOOSE PRODUCTS IN A CATEGORY          #
+#####################################################
 def choose_category(_, db):
     '''
     Chose a category
@@ -116,16 +122,17 @@ def choose_healthier(product, db):
 
         # get the one and then save it.
         substitute = potential_substitutes[choice]
-        save_product(product, substitute, db)
+
+        db.save_favourite(product, substitute)
+        print(product)
+        print("remplacé par")
+        print(substitute)
+        choose_action(product.code, db)
 
 
-def save_product(product, substitute, db):
-    print(product)
-    print("à remplacer par")
-    print(substitute)
-    choose_action(product.code, db)
-
-
+#####################################################
+#                   MANAGE FAVOURITES               #
+#####################################################
 def manage_favourites(_, db):
     '''
     chose a category
@@ -136,6 +143,9 @@ def manage_favourites(_, db):
     pass
 
 
+#####################################################
+#                      QUIT APP                     #
+#####################################################
 def quit_app(_, db):
     '''
     Exit app with 2 fake arguments

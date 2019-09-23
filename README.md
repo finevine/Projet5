@@ -20,7 +20,7 @@ The product's architecture can be found on [Open Food Facts wiki](https://en.wik
 
 ### Customize settings.py
 
-To customize the categories you want to explore (**Maximum 5 categories**), simply change the category in `settings.py`. Add (or replace) a category using its tag in [word.openfoodfact.org](https://world.openfoodfacts.org/). The full list of categories is available [on their website](https://world.openfoodfacts.org/categories.xml).
+To customize the categories you want to explore (**you can add as many categories as you want** please note that the more categories you add, the longer it will take to feed the local database!), simply change the categories in `settings.py`. Add (or replace) a category using its tag in [word.openfoodfact.org](https://world.openfoodfacts.org/). The full list of categories is available [on their website](https://world.openfoodfacts.org/categories.xml).
 
 ### Grant access to local database
 
@@ -32,11 +32,13 @@ Then run setup.py Password
 python setup.py mypassword
 ```
 
+**Caution:** running `setup.py` will discard all the Products TABLE in the database and feed it again with products of categories in `settings.py` 
+
 ## Running it
 
 Simply download the repo and run main
 ```bash
-python main.py
+python controller.py mypassword
 ```
 
 ## Features
