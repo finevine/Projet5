@@ -98,7 +98,7 @@ def get_choice(question, choices, precision=''):
             )
         else:
             # return choice
-            return int(choice) - 1
+            return str(int(choice) - 1)
 
 
 if __name__ == "__main__":

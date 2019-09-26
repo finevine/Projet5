@@ -47,7 +47,7 @@ class Product_API:
                     )
                 code = {
                     'code': self.code,
-                    'name': self.name,
+                    'name': self.name.replace('\n', ' '),
                     'cat': category,
                     'nutrition_grade': self.nutrition_grade
                 }
@@ -71,10 +71,9 @@ class Product:
         self.nutrition_grade = cursor_row[3]
 
     def __repr__(self):
-        return self.code + \
-            "\nName: " + self.name + \
-            "\nCategories: " + self.category + \
-            "\nNutriscore: " + self.nutrition_grade
+        return "  Name: " + self.name + \
+            "\n  Categories: " + self.category + \
+            "\n  Nutriscore: " + self.nutrition_grade
 
     def __gt__(self, other):
         '''
@@ -89,15 +88,22 @@ class Product:
         }
         return nutrition_grades[self.nutrition_grade] > \
             nutrition_grades[other.nutrition_grade]
-    
+
+    def __lt__(self, other):
+        '''
+        Compare self to other with self < other in nutrition quality
+        '''
+        return not (self > other)
+
 
 #####################################################
 #                    FAVOURITE IN DB                #
 #####################################################
-class Favourite:
+class Favourite(Product):
     ''' A class for saved products '''
-    def __init__(self, code_healthy):
-        super().__init__()
+    def __init__(self, cursor_row, code_healthy):
+        super().__init__(cursor_row)
+        self.name = 'foo'
         # code_healthy is the code of the substitute
         self.code_substitute = code_healthy
 
@@ -239,7 +245,7 @@ class DataBase:
         products_list = category.get_api_products()
 
         for product in products_list:
-            if product.categories and product.nutrition_grade:
+            if product.name and product.categories and product.nutrition_grade:
                 product.insert_from_API(self)
         print('Inserted in database: ' + category.name)
 
@@ -268,8 +274,28 @@ class DataBase:
         parameter = {'cat': category}
         cursor.execute(query, parameter)
         # products = cursor.fetchall()
-        return [Product(prod) for prod in cursor]
+        res = [Product(prod) for prod in cursor]
         cursor.close()
+        return res
+
+    def get_one_product(self, code, category):
+        '''
+        Get one Product with a given code in the DB
+        Arguments:
+            code {string}
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        query = (
+            "SELECT * FROM Products "
+            "WHERE category = %(cat)s"
+            "AND code = %(code)s"
+            )
+        parameter = {'cat': category, 'code': code}
+        cursor.execute(query, parameter)
+        res = Product(cursor.fetchone())
+        cursor.close()
+        return res
 
     def find_healthier(self, product):
         '''
@@ -285,7 +311,6 @@ class DataBase:
             if product_of_cat > product:
                 healthier_products.append(product_of_cat)
         return healthier_products
-
 
     def save_favourite(self, product, substitute):
         ''' save a product substituted as favourite
@@ -307,9 +332,47 @@ class DataBase:
             }
             cursor.execute(query, code)
             cursor.close()
-            # Commit changes
             connection.commit()
-            # Finally close connection
-            connection.close()
         except mysql.connector.Error as error:
             print(f'Failed to insert Favourite to MySQL table: {error}')
+
+    def list_favourites(self):
+        '''
+        return a list of all products
+        Arguments :
+            none
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        query = ("SELECT * FROM Favourites ORDER BY category ASC")
+        cursor.execute(query,)
+        res_temp = [fav for fav in cursor]
+        cursor.close()
+        res = [
+            (
+                self.get_one_product(fav[0], fav[2]),
+                self.get_one_product(fav[1], fav[2])
+                )
+            for fav in res_temp
+            ]
+        return res
+
+    def delete_favourite(self, favourite):
+        '''
+        '''
+        connection = self.connection
+        cursor = connection.cursor()
+        query = (
+            "DELETE FROM Favourites "
+            "WHERE code_unhealthy = %(junk_code)s "
+            "AND code_healthy = %(healthy_code)s "
+            "AND category = %(cat)s"
+        )
+        parameter = {
+            'junk_code': favourite[0].code,
+            'healthy_code': favourite[1].code,
+            'cat': favourite[0].category
+        }
+        cursor.execute(query, parameter)
+        cursor.close()
+        connection.commit()

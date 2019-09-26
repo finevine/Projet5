@@ -12,7 +12,6 @@ DATABASE = 'foodstitute'
 CATEGORIES = [
     'meats',
     'seafood',
-    'chocolates',
     'compotes',
     'nuts'
     ]
