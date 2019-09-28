@@ -9,7 +9,7 @@ import settings
 
 
 def main():
-    products = Category('nuts').get_api_products()
+    products = model.Category('nuts').get_api_products()
     print(products[1])
     print(products[2])
     print(products[3])
@@ -44,4 +44,4 @@ def main3():
 
 
 if __name__ == "__main__":
-    main3()
+    main()

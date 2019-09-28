@@ -6,6 +6,7 @@ import model
 import view
 import argparse
 import pdb
+from random import randint
 KEYS = ['code', 'product_name', 'categories', 'nutrition_grade_fr']
 
 
@@ -103,8 +104,56 @@ def choose_product(category, db, warning=''):
         next_parameter = products[int(choice)]
     else:
         next_parameter = choice
-    # By default, return choose_healthier(Product, db)
-    res.get(choice, choose_healthier)(next_parameter, db)
+    # By default, return random_healthier
+    res.get(choice, random_healthier)(next_parameter, db)
+
+
+def random_healthier(product, db):
+    '''
+    Pick a random healthier product in a category
+    Arguments:
+        product {Product}
+        db {Database}
+    '''
+    def OK_for_substitute(substitute_list, database, answer='1'):
+        while answer == '1':
+            print('This product is healthier')
+            # pick a random substitute
+            substitute = substitute_list[
+                randint(0, len(substitute_list) - 1)
+                ]
+            print(substitute)
+            question = "Do you want to save it?"
+            answers = ['Yes', 'No']
+            answer = view.get_choice(question, answers)
+        choice = {
+            '0': save_it,
+            'B': choose_product,
+            'Q': quit_app
+        }
+        if answer == 'B':
+            next_parameter = substitute.category
+        else:
+            next_parameter = substitute
+        choice.get(answer)(next_parameter, database)
+
+    def save_it(substitute, database, prod=product):
+        database.save_favourite(prod, substitute)
+        print(substitute)
+        print("****REPLACE:")
+        print(prod)
+        choose_action(prod.code, database)
+
+    code = product.code
+    category = product.category
+    # get product candidtes to be substitutes
+    potential_substitutes = db.find_healthier(product)
+    # check if there are candidates
+    if not potential_substitutes:
+        warning = "NO HEALTHIER PRODUCT IN CATEGORY!\n"
+        choose_product(product.category, db, warning)
+    else:
+        OK_for_substitute(potential_substitutes, db)
 
 
 def choose_healthier(product, db):
@@ -114,6 +163,8 @@ def choose_healthier(product, db):
         product {Product}
         db {Database}
     '''
+    # Note this function is not used.
+    # The program will now pick a random healthier product
     code = product.code
     category = product.category
     # get product candidtes to be substitutes
@@ -175,7 +226,7 @@ def manage_favourites(_, db):
         next_parameter = favourites[int(choice)]
     else:
         next_parameter = choice
-    # By default, return choose_healthier(Product, db)
+    # By default, return confirm
     res.get(choice, confirm_delete_favourite)(next_parameter, db)
 
 

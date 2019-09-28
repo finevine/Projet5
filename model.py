@@ -24,6 +24,12 @@ class Product_API:
             )
         self.nutrition_grade = product_dict.get(
             'nutrition_grade_fr', '')
+        self.purchase_places_tags = product_dict.get(
+            'purchase_places_tags', ''
+            )
+        self.stores_tags = product_dict.get(
+            'stores_tags', ''
+            )
 
     def __repr__(self):
         categories = ''
@@ -42,14 +48,18 @@ class Product_API:
             for category in self.categories:
                 query = (
                     'INSERT INTO Products '
-                    '(code,  name, category, nutrition_grade) '
-                    'VALUES (%(code)s, %(name)s, %(cat)s, %(nutrition_grade)s)'
+                    '(code,  name, category, nutrition_grade, purchase_place) '
+                    'VALUES (%(code)s, %(name)s, %(cat)s, %(nutrition_grade)s, %(purchase)s)'
                     )
+                purchase_place = ' '.join(self.stores_tags) + \
+                    ' in ' + \
+                    ' '.join(self.purchase_places_tags)
                 code = {
                     'code': self.code,
                     'name': self.name.replace('\n', ' '),
                     'cat': category,
-                    'nutrition_grade': self.nutrition_grade
+                    'nutrition_grade': self.nutrition_grade,
+                    'purchase': purchase_place
                 }
                 cursor.execute(query, code)
 
@@ -69,11 +79,23 @@ class Product:
         self.name = cursor_row[1]
         self.category = cursor_row[2]
         self.nutrition_grade = cursor_row[3]
+        self.purchase = cursor_row[4]
 
     def __repr__(self):
-        return "  Name: " + self.name + \
-            "\n  Categories: " + self.category + \
-            "\n  Nutriscore: " + self.nutrition_grade
+        tags = ['Name: ', 'Category: ', 'Nutition grade: ', 'Link: ', 'Store: ']
+        attrs = [
+            self.name, 
+            self.category, 
+            self.nutrition_grade, 
+            "https://world.openfoodfacts.org/product/" + self.code,
+            self.purchase
+        ]
+        res = ''
+        for tag, attr in zip(tags, attrs):
+            # 18 char align left for tags
+            res += f'{tag:<18}  {attr:<0}' + '\n'
+        return res
+
 
     def __gt__(self, other):
         '''
@@ -97,18 +119,6 @@ class Product:
 
 
 #####################################################
-#                    FAVOURITE IN DB                #
-#####################################################
-class Favourite(Product):
-    ''' A class for saved products '''
-    def __init__(self, cursor_row, code_healthy):
-        super().__init__(cursor_row)
-        self.name = 'foo'
-        # code_healthy is the code of the substitute
-        self.code_substitute = code_healthy
-
-
-#####################################################
 #                    A CATEGORY                     #
 #####################################################
 class Category:
@@ -127,6 +137,21 @@ class Category:
                         "page_size": 1000,
                         "json": 1,
                         "page": page}
+        
+        # Too long
+        search_param_fr = {
+            "action": "process",
+            "tagtype_0": "purchase_places",
+            "tag_contains_0": "contains",
+            "tag_0": "france",
+            "tagtype_1": "categories",
+            "tag_contains_1": "contains",
+            "tag_1":  ", " + self.name + ",",
+            "sort_by": "unique_scans_n",
+            "page_size": 1000,
+            "json": 1,
+            "page": page
+        }
         return search_param
 
     def get_api_products(self):
@@ -202,6 +227,7 @@ class DataBase:
                 name VARCHAR(100) NOT NULL,
                 category VARCHAR(40) NOT NULL,
                 nutrition_grade VARCHAR(1) NOT NULL,
+                purchase_place VARCHAR(100),
                 PRIMARY KEY (code, category)
                 )
                 ENGINE=InnoDB;
@@ -245,7 +271,14 @@ class DataBase:
         products_list = category.get_api_products()
 
         for product in products_list:
-            if product.name and product.categories and product.nutrition_grade:
+            if (
+                # name, categories, NG not empty
+                # and purchasable in france
+                product.name and
+                product.categories and
+                product.nutrition_grade and
+                "france" in product.purchase_places_tags
+            ):
                 product.insert_from_API(self)
         print('Inserted in database: ' + category.name)
 
