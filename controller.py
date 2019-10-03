@@ -64,14 +64,15 @@ def choose_category(_, db):
         db {database}
     '''
     question = 'Which category of product do you want to use?'
+    answers = model.CATEGORIES
     res = {
         'B': choose_action,
         'Q': quit_app,
     }
-    choice = view.get_choice(question, model.CATEGORIES)
+    choice = view.get_choice(question, answers)
     # Default is choose_product, else choose_action or quit_app
     if choice.isdigit():
-        next_parameter = model.CATEGORIES[int(choice)]
+        next_parameter = answers[int(choice)]
     else:
         next_parameter = choice
     # call chosen function with next_parameter
@@ -86,6 +87,10 @@ def choose_product(category, db, warning=''):
         db {database}
     '''
     question = 'Which product do you want to substitute?'
+    res = {
+        'B': choose_category,
+        'Q': quit_app,
+    }
     # list of Product
     products = db.get_products(category)
     # list of codes
@@ -95,10 +100,6 @@ def choose_product(category, db, warning=''):
         prod.name + ' (' + prod.nutrition_grade.upper() + ')'
         for prod in products
         ]
-    res = {
-        'B': choose_category,
-        'Q': quit_app,
-    }
     choice = view.get_choice(question, products_names, warning)
     if choice.isdigit():
         next_parameter = products[int(choice)]
@@ -116,6 +117,13 @@ def random_healthier(product, db):
         db {Database}
     '''
     def OK_for_substitute(substitute_list, database, answer='1'):
+        question = "Do you want to save it?"
+        answers = ['Yes', 'No']
+        res = {
+            '0': save_it,
+            'B': choose_product,
+            'Q': quit_app
+        }
         while answer == '1':
             print('This product is healthier')
             # pick a random substitute
@@ -123,24 +131,18 @@ def random_healthier(product, db):
                 randint(0, len(substitute_list) - 1)
                 ]
             print(substitute)
-            question = "Do you want to save it?"
-            answers = ['Yes', 'No']
             answer = view.get_choice(question, answers)
-        choice = {
-            '0': save_it,
-            'B': choose_product,
-            'Q': quit_app
-        }
         if answer == 'B':
             next_parameter = substitute.category
         else:
             next_parameter = substitute
-        choice.get(answer)(next_parameter, database)
+
+        res.get(answer)(next_parameter, database)
 
     def save_it(substitute, database, prod=product):
         database.save_favourite(prod, substitute)
         print(substitute)
-        print("****REPLACE:")
+        print("****REPLACES:")
         print(prod)
         choose_action(prod.code, database)
 
@@ -156,42 +158,42 @@ def random_healthier(product, db):
         OK_for_substitute(potential_substitutes, db)
 
 
-def choose_healthier(product, db):
-    '''
-    Choose a healthier product in a category
-    Arguments:
-        product {Product}
-        db {Database}
-    '''
-    # Note this function is not used.
-    # The program will now pick a random healthier product
-    code = product.code
-    category = product.category
-    # get product candidtes to be substitutes
-    potential_substitutes = db.find_healthier(product)
-    # check if there are candidates
-    if not potential_substitutes:
-        warning = "NO HEALTHIER PRODUCT IN CATEGORY!\n"
-        choose_product(product.category, db, warning)
-    else:
-        question = (
-            "Those products are healthier. Which one do you want to save?")
-        # make a choice amongst candidates names
-        styled_list = [
-            prod.name + ' (' + prod.nutrition_grade.upper() + ')'
-            for prod in potential_substitutes
-            ]
-        choice = view.get_choice(
-            question, styled_list
-            )
-        # get the one and then save it.
-        substitute = potential_substitutes[int(choice)]
+# def choose_healthier(product, db):
+#     '''
+#     Choose a healthier product in a category
+#     Arguments:
+#         product {Product}
+#         db {Database}
+#     '''
+#     # Note this function is not used.
+#     # The program will now pick a random healthier product
+#     code = product.code
+#     category = product.category
+#     # get product candidtes to be substitutes
+#     potential_substitutes = db.find_healthier(product)
+#     # check if there are candidates
+#     if not potential_substitutes:
+#         warning = "NO HEALTHIER PRODUCT IN CATEGORY!\n"
+#         choose_product(product.category, db, warning)
+#     else:
+#         question = (
+#             "Those products are healthier. Which one do you want to save?")
+#         # make a choice amongst candidates names
+#         styled_list = [
+#             prod.name + ' (' + prod.nutrition_grade.upper() + ')'
+#             for prod in potential_substitutes
+#             ]
+#         choice = view.get_choice(
+#             question, styled_list
+#             )
+#         # get the one and then save it.
+#         substitute = potential_substitutes[int(choice)]
 
-        db.save_favourite(product, substitute)
-        print(substitute)
-        print("****REPLACE:")
-        print(product)
-        choose_action(product.code, db)
+#         db.save_favourite(product, substitute)
+#         print(substitute)
+#         print("****REPLACE:")
+#         print(product)
+#         choose_action(product.code, db)
 
 
 #####################################################
@@ -205,22 +207,22 @@ def manage_favourites(_, db):
         db {database}: database
     '''
     question = 'Which favourite to delete?\n'
+    res = {
+        'B': choose_action,
+        'Q': quit_app,
+    }
     # list of favourites
     favourites = db.list_favourites()
-    fav_view = []
     # build the fav view of all favourites
+    fav_view = []
     for fav in favourites:
         product = fav[0]
         substitute = fav[1]
         fav_view.append(
             product.category + ': ' +
-            substitute.name + ' REPLACE ' + product.name
+            substitute.name + ' (' + substitute.purchase + ')\n ' + ' REPLACE: ' + product.name
             )
 
-    res = {
-        'B': choose_action,
-        'Q': quit_app,
-    }
     choice = view.get_choice(question, fav_view, 'Yes, ' + question)
     if choice.isdigit():
         next_parameter = favourites[int(choice)]

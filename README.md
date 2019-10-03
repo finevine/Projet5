@@ -43,7 +43,11 @@ python controller.py mypassword
 
 ## Features
 
-Using the terminal select "Find a substitute" OR "My food"
+You can find products that are sold in France.
+
+Using the terminal select "Substitute a product." or "Manage favourites."
+
+You can save favourites, display them in the terminal or delete them.
 
 ## License
 

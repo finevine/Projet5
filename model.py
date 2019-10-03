@@ -86,7 +86,7 @@ class Product:
         attrs = [
             self.name, 
             self.category, 
-            self.nutrition_grade, 
+            self.nutrition_grade.upper(), 
             "https://world.openfoodfacts.org/product/" + self.code,
             self.purchase
         ]
