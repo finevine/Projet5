@@ -48,7 +48,7 @@ def split_text(text, numb):
 
 
 def start_view():
-    print_title(""" WELLCOME!\n
+    print_title(""" WELCOME!\n
     This is a beta app to find products that can substitute your food.\n
     CAUTION: there might be inaccuracies in nutrition grades.
     """)
