@@ -220,7 +220,8 @@ def manage_favourites(_, db):
         substitute = fav[1]
         fav_view.append(
             product.category + ': ' +
-            substitute.name + ' (' + substitute.purchase + ')\n ' + ' REPLACE: ' + product.name
+            substitute.name + ' (' + substitute.purchase + ')\n ' +
+            ' REPLACE: ' + product.name
             )
 
     choice = view.get_choice(question, fav_view, 'Yes, ' + question)

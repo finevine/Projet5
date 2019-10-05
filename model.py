@@ -82,11 +82,13 @@ class Product:
         self.purchase = cursor_row[4]
 
     def __repr__(self):
-        tags = ['Name: ', 'Category: ', 'Nutition grade: ', 'Link: ', 'Store: ']
+        tags = [
+            'Name: ', 'Category: ', 'Nutition grade: ', 'Link: ', 'Store: '
+            ]
         attrs = [
-            self.name, 
-            self.category, 
-            self.nutrition_grade.upper(), 
+            self.name,
+            self.category,
+            self.nutrition_grade.upper(),
             "https://world.openfoodfacts.org/product/" + self.code,
             self.purchase
         ]
@@ -95,7 +97,6 @@ class Product:
             # 18 char align left for tags
             res += f'{tag:<18}  {attr:<0}' + '\n'
         return res
-
 
     def __gt__(self, other):
         '''
@@ -137,7 +138,6 @@ class Category:
                         "page_size": 1000,
                         "json": 1,
                         "page": page}
-        
         # Too long
         search_param_fr = {
             "action": "process",
