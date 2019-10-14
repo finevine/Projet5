@@ -193,7 +193,6 @@ class Category:
 #####################################################
 class DataBase:
     ''' Database class '''
-    # essayer d'hériter de connection.MySQLConnection()
     def __init__(self, MDP):
         try:
             # user_password = getpass('Database password? ')
@@ -276,6 +275,7 @@ class DataBase:
                 # and purchasable in france
                 product.name and
                 product.categories and
+                # product.nutrition_grade
                 product.nutrition_grade and
                 "france" in product.purchase_places_tags
             ):
